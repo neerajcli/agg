@@ -444,4 +444,4 @@ client.on('guildMemberRemove', async member => {
      await db.delete('nextXP_' + member.id + member.guild.id)
 })
  
-client.login('')
+client.login('Your Bot TOKEN here')
