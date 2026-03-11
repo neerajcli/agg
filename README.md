@@ -7,8 +7,9 @@ It features a levelling system that rewards user activity and encourages communi
 
 ## Features
 
-- **Modular Command System** — Every command is stored as a separate file in `commands/`
-- **Simple Configuration** — All important settings inside `config.json`
+- **Levelling System** — Rewards users with XP and levels based on their activity in the server.
+- **Welcomer Messages** — Sends a welcome message when a new member joins the server.
+- **Nickname Moderation** — Automatically checks and moderates usernames when users join the server.
 - **Clean Structure** — Easy to understand and extend
 - **Beginner-Friendly** — Ideal for learning Discord bot development
 - **Quick Startup** — Run the bot instantly with a single command
