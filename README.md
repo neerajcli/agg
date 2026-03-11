@@ -1,6 +1,6 @@
 # AGG — A Levelling System Based Discord Bot
 
-AGG is a lightweight and extensible **Discord bot** built using **Discord.js**.\n
+AGG is a lightweight and extensible **Discord bot** built using **Discord.js**.  
 It features a levelling system that rewards user activity and encourages community engagement within the server.
 
 ---
