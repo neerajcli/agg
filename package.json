@@ -1,5 +1,5 @@
 {
-  "name": "discord-bot",
+  "name": "AGG",
   "main": "index.js",
   "dependencies": {
     "canvas": "2.8.0",
