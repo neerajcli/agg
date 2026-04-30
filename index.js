@@ -343,4 +343,4 @@ client.on('guildMemberRemove', async member => {
   await db.delete('nextXP_' + member.id + member.guild.id);
 });
 
-client.login('Nzg0NjcxMTY4NjczODczOTUy.Gc0NTv.ynXnc7e_FKnY9LEaq0gdaYRD1AY_L9AGV-Hob4');
+client.login('YOUR BOT TOKEN HERE');
