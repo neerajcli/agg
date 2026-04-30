@@ -1,0 +1,14 @@
+{
+  "name": "AGG",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "discord.js": "^14.15.3",
+    "parse-ms": "^4.0.0",
+    "quick.db": "^9.1.7",
+    "better-sqlite3": "^11.7.0"
+  }
+}
