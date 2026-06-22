@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, AttachmentBuilder, PermissionFlagsBits, ActivityType } = require('discord.js');
+ const { Client, GatewayIntentBits, EmbedBuilder, AttachmentBuilder, PermissionFlagsBits, ActivityType } = require('discord.js');
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
 let ms;
@@ -10,9 +10,28 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.DirectMessages
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.GuildMessageReactions
   ]
 });
+
+async function getLeaderboard(guildId) {
+  const allData = await db.all();
+
+  const xpEntries = allData
+    .filter(entry => entry.id.startsWith('levelXP_') && entry.id.endsWith(guildId));
+
+  const users = await Promise.all(xpEntries.map(async entry => {
+    const userId = entry.id.replace('levelXP_', '').replace(guildId, '');
+    const xp = entry.value ?? 0;
+    const level = await db.get('level_' + userId + guildId) ?? 0;
+    return { userId, xp, level };
+  }));
+
+  users.sort((a, b) => b.level - a.level || b.xp - a.xp);
+
+  return users;
+}
 
 client.on('clientReady', async () => {
   ms = (await import("parse-ms")).default;
@@ -25,6 +44,7 @@ client.on("messageCreate", async message => {
   if (message.author.bot) return;
   if (message.content === "<@784671168673873952>" || message.content === "<@!784671168673873952>") {
     return message.channel.send('I am here!');
+
   } else if (message.content.startsWith("!eval")) {
     let owners = ["504635146553524234"];
     if (!owners.includes(message.author.id)) return;
@@ -40,74 +60,65 @@ client.on("messageCreate", async message => {
     try {
       const code = args.join(" ");
       let evaled = eval(code);
-
       if (typeof evaled !== "string")
         evaled = require("util").inspect(evaled);
-
       message.channel.send({ content: `\`\`\`xl\n${clean(evaled)}\n\`\`\`` });
     } catch (err) {
       message.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``);
     }
+
   } else if (message.content == '!trialsinfo') {
-
     if (message.guild.id === "498898363350253569" &&
-      (member.roles.cache.has('498898597681561620') ||
-        member.roles.cache.has('530279836451864586') ||
-        member.roles.cache.has('498899750662438937'))) {
-
+      (message.member.roles.cache.has('498898597681561620') ||
+        message.member.roles.cache.has('530279836451864586') ||
+        message.member.roles.cache.has('498899750662438937'))) {
       const embed = new EmbedBuilder()
         .setTitle('Trial Mod Guidelines')
         .setColor('#FFFFFF')
         .setFooter({ text: 'Failing to follow these guidelines may result in a direct demotion' })
         .setDescription(`- 2k messages weekly. \n- Non toxic. \n- Friendly behaviour with everyone. \n- Must know MOD command uses or experience. [Even if you dont have exp as long as you are willing to work and learn them its all good] \n- Read rules and info. \n- Must do the task given by your seniors.`);
-
       message.channel.send({ embeds: [embed] });
     }
+
   } else if (message.content == '!eventmanagersinfo') {
-
     if (message.guild.id === "498898363350253569" &&
-      (member.roles.cache.has('498898597681561620') ||
-        member.roles.cache.has('530279836451864586') ||
-        member.roles.cache.has('498899750662438937'))) {
-
+      (message.member.roles.cache.has('498898597681561620') ||
+        message.member.roles.cache.has('530279836451864586') ||
+        message.member.roles.cache.has('498899750662438937'))) {
       const embed = new EmbedBuilder()
         .setTitle('Event Managers Guidelines')
         .setColor('#FFFFFF')
         .setFooter({ text: 'Failing to follow these guidelines may result in a direct demotion' })
         .setDescription(`- 1k messages weekly. \n- 1 event weekly [can host alone or with the help of others in staff or event managers which are present, also complete the event within the week]. \n- Update <#513975623048364032> channel accordingly.`);
-
       message.channel.send({ embeds: [embed] });
     }
+
   } else if (message.content == '!modinfo') {
-
     if (message.guild.id === "498898363350253569" &&
-      (member.roles.cache.has('498898597681561620') ||
-        member.roles.cache.has('530279836451864586') ||
-        member.roles.cache.has('498899750662438937'))) {
-
+      (message.member.roles.cache.has('498898597681561620') ||
+        message.member.roles.cache.has('530279836451864586') ||
+        message.member.roles.cache.has('498899750662438937'))) {
       const embed = new EmbedBuilder()
         .setTitle('Mod Guidelines')
         .setColor('#FFFFFF')
         .setFooter({ text: 'Failing to follow these guidelines may result in a direct demotion' })
         .setDescription(`- 2k messages weekly. \n- Moderation without partiality. \n- Don't fight with fellow staff members over moderation issues outside staff channels. \n- Don't be toxic with people u don't know personally. \n- Change the nickname which ain't pingable or are in other languages or fonts. \n- Read staff channels on a regular basis. \n- If you have to go inactive due to some days, go by telling your seniors and the amount of time for which you will be inactive. \n \nNOTE :- You work is not only to moderate but also to make chat active, non-toxic, friendly and social.`);
-
       message.channel.send({ embeds: [embed] });
     }
+
   } else if (message.content == '!gamingmanagersinfo') {
-
     if (message.guild.id === "498898363350253569" &&
-      (member.roles.cache.has('498898597681561620') ||
-        member.roles.cache.has('530279836451864586') ||
-        member.roles.cache.has('498899750662438937'))) {
-
+      (message.member.roles.cache.has('498898597681561620') ||
+        message.member.roles.cache.has('530279836451864586') ||
+        message.member.roles.cache.has('498899750662438937'))) {
       const embed = new EmbedBuilder()
         .setTitle('Gaming Managers Guidelines')
         .setColor('#FFFFFF')
         .setFooter({ text: 'Failing to follow these guidelines may result in a direct demotion' })
         .setDescription(`- 1k messages weekly. \n- You can stream the games or host game related events yourself or with the help of event managers. \n- Update <#590141817031491584> channel.`);
-
       message.channel.send({ embeds: [embed] });
     }
+
   } else if (message.content.startsWith('!level')) {
     let user = message.mentions.users.first() || message.author;
     let level = await db.get('level_' + user.id + message.guild.id);
@@ -116,6 +127,10 @@ client.on("messageCreate", async message => {
     if (XP === null) XP = 0;
     let nextXP = await db.get('nextXP_' + user.id + message.guild.id);
     if (nextXP === null) nextXP = 1000;
+
+    const leaderboard = await getLeaderboard(message.guild.id);
+    const rankIndex = leaderboard.findIndex(entry => entry.userId === user.id);
+    const rank = rankIndex === -1 ? 'N/A' : `#${rankIndex + 1}`;
 
     const canvas = createCanvas(1000, 300);
     const ctx = canvas.getContext('2d');
@@ -136,10 +151,8 @@ client.on("messageCreate", async message => {
     ctx.lineWidth = 69;
 
     ctx.strokeRect(298, 199, bar_width, 2);
-
     ctx.strokeStyle = "black";
     ctx.strokeRect(300, 200, bar_width, 0);
-
     ctx.strokeStyle = "#1762e8";
     ctx.strokeRect(300, 200, bar_width * XP / nextXP, 0);
 
@@ -148,14 +161,17 @@ client.on("messageCreate", async message => {
     ctx.textAlign = "center";
     ctx.fillText(user.username, 120, 275, 200);
 
-    ctx.font = "bold 40px Sans";
     ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
-    ctx.fillText(level, 930, 40, 80);
+    ctx.font = "bold 25px Sans";
+    ctx.fillText("Rank", 650, 40, 200);
+    ctx.font = "bold 40px Sans";
+    ctx.fillText(rank, 720, 40, 100);
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "#ffffff";
     ctx.font = "bold 25px Sans";
     ctx.fillText("Level", 850, 40, 200);
+    ctx.font = "bold 40px Sans";
+    ctx.fillText(level, 930, 40, 80);
 
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 22px Serif";
@@ -172,8 +188,9 @@ client.on("messageCreate", async message => {
 
     ctx.drawImage(av, 10, 10, 220, 220);
 
-    const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: 'rank.png' });
+    const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: 'level.png' });
     message.channel.send({ files: [attachment] });
+
   } else if (message.content.startsWith("!addXP")) {
     const prefix = '!';
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
@@ -185,6 +202,7 @@ client.on("messageCreate", async message => {
     if (args[2] <= 0) return message.channel.send("Invalid XP amount.");
     await db.add("levelXP_" + user.id + message.guild.id, parseInt(args[2]));
     message.channel.send(`Gave ${args[2]}XP to ${user.username}.`);
+
   } else if (message.content.startsWith("!removeXP")) {
     const prefix = '!';
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
@@ -196,6 +214,7 @@ client.on("messageCreate", async message => {
     if (args[2] <= 0) return message.channel.send("Invalid XP amount.");
     await db.sub("levelXP_" + user.id + message.guild.id, parseInt(args[2]));
     message.channel.send(`Removed ${args[2]}XP from ${user.username}.`);
+
   } else if (message.content.startsWith("!reset")) {
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
     const user = message.mentions.users.first();
@@ -204,22 +223,115 @@ client.on("messageCreate", async message => {
     await db.delete("level_" + user.id + message.guild.id);
     await db.delete("nextXP_" + user.id + message.guild.id);
     message.channel.send(`Resetted ${user.username}.`);
+
   } else if (message.content.startsWith("!enable-boost")) {
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
     await db.set('xboost_' + message.guild.id, 1);
     message.channel.send("Successfully enabled 3x boost.");
+
   } else if (message.content.startsWith("!disable-boost")) {
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
     await db.set('xboost_' + message.guild.id, 0);
     message.channel.send("Successfully disabled 3x boost.");
-  } else {
+
+  } else if (message.content.startsWith('!leaderboard')) {
+    const leaderboard = await getLeaderboard(message.guild.id);
+
+    if (leaderboard.length === 0)
+      return message.channel.send('No leaderboard data yet!');
+
+    const USERS_PER_PAGE = 10;
+    const totalPages = Math.ceil(leaderboard.length / USERS_PER_PAGE);
+    let currentPage = 0;
+
+    async function buildLeaderboardEmbed(page) {
+      const start = page * USERS_PER_PAGE;
+      const end = start + USERS_PER_PAGE;
+      const pageEntries = leaderboard.slice(start, end);
+
+      let description = '';
+      for (let i = 0; i < pageEntries.length; i++) {
+        const { userId, xp, level } = pageEntries[i];
+        const globalIndex = start + i;
+        const prefix = `**#${globalIndex + 1}**`;
+
+        let member;
+        try {
+          member = await message.guild.members.fetch(userId);
+        } catch {
+          member = null;
+        }
+
+        const displayName = member ? member.user.username : `Unknown (${userId})`;
+        description += `${prefix} **${displayName}** — Level ${level} | ${xp} XP\n`;
+      }
+
+      return new EmbedBuilder()
+        .setTitle(`${message.guild.name} Leaderboard`)
+        .setColor('#FFFFFF')
+        .setDescription(description)
+        .setFooter({ text: `Page ${page + 1} of ${totalPages} • ${leaderboard.length} total users • React ⏮ ◀ ▶ ⏭ to navigate` })
+        .setTimestamp();
+    }
+
+    const initialEmbed = await buildLeaderboardEmbed(0);
+    const lbMessage = await message.channel.send({ embeds: [initialEmbed] });
+
+    if (totalPages > 1) {
+      await lbMessage.react('⏮');
+      await lbMessage.react('◀');
+      await lbMessage.react('▶');
+      await lbMessage.react('⏭');
+    }
+
+    const filter = (reaction, user) =>
+      ['⏮', '◀', '▶', '⏭'].includes(reaction.emoji.name) && user.id === message.author.id;
+
+    const collector = lbMessage.createReactionCollector({ filter, time: 120000 });
+
+    collector.on('collect', async (reaction, user) => {
+      await reaction.users.remove(user.id).catch(() => {});
+
+      if (reaction.emoji.name === '⏮') currentPage = 0;
+      else if (reaction.emoji.name === '◀') currentPage = Math.max(0, currentPage - 1);
+      else if (reaction.emoji.name === '▶') currentPage = Math.min(totalPages - 1, currentPage + 1);
+      else if (reaction.emoji.name === '⏭') currentPage = totalPages - 1;
+
+      const newEmbed = await buildLeaderboardEmbed(currentPage);
+      await lbMessage.edit({ embeds: [newEmbed] });
+    });
+
+    collector.on('end', async () => {
+      await lbMessage.reactions.removeAll().catch(() => {});
+    });
+
+  } else if (message.content === '!cleanupleaderboard') {
+  if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
+
+  const leaderboard = await getLeaderboard(message.guild.id);
+  if (leaderboard.length === 0)
+    return message.channel.send('No leaderboard data to clean up!');
+let msg = await message.channel.send("Leaderboard cleaning in progress..... This will take some time, please wait....")
+  const allMembers = await message.guild.members.fetch();
+  let removed = 0;
+  for (const entry of leaderboard) {
+    if (!allMembers.has(entry.userId)) {
+      await db.delete('level_' + entry.userId + message.guild.id);
+      await db.delete('levelXP_' + entry.userId + message.guild.id);
+      await db.delete('nextXP_' + entry.userId + message.guild.id);
+      removed++;
+    }
+  }
+     await msg.edit(`Cleanup complete! Removed **${removed}** users from the leaderboard!`)
+  }
+    else {
     return;
   }
 });
 
 
 client.on('messageCreate', async message => {
-
+  if (message.author.bot) return;
   const excludedChannels = ["499533661771792406", "503614955472420878", "540467584126943243",
     "498911483531624467", "525607058121162762", "502052026486751233"];
   if (excludedChannels.includes(message.channel.id)) return;
@@ -298,6 +410,7 @@ client.on('messageCreate', async message => {
       number4 = Math.round(Math.random() * 180) + 120;
       number5 = Math.round(Math.random() * 195) + 130;
     }
+
     const member = await message.guild.members.fetch(message.author.id);
 
     if (!member.roles.cache.has('698097735739637760') && !member.roles.cache.has('698098130620514374') && !member.roles.cache.has('698098009233293392') && !member.roles.cache.has('813998590644191232') && !member.roles.cache.has('648199869860806671') && !member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
@@ -343,4 +456,4 @@ client.on('guildMemberRemove', async member => {
   await db.delete('nextXP_' + member.id + member.guild.id);
 });
 
-client.login('YOUR BOT TOKEN HERE');
+client.login('YOUR_BOT_TOKEN_HERE');
