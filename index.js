@@ -1,4 +1,4 @@
- const { Client, GatewayIntentBits, EmbedBuilder, AttachmentBuilder, PermissionFlagsBits, ActivityType } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, AttachmentBuilder, PermissionFlagsBits, ActivityType } = require('discord.js');
 const { QuickDB } = require('quick.db');
 const db = new QuickDB();
 let ms;
@@ -240,7 +240,7 @@ client.on("messageCreate", async message => {
     if (leaderboard.length === 0)
       return message.channel.send('No leaderboard data yet!');
 
-    const USERS_PER_PAGE = 10;
+    const USERS_PER_PAGE = 15;
     const totalPages = Math.ceil(leaderboard.length / USERS_PER_PAGE);
     let currentPage = 0;
 
@@ -290,7 +290,7 @@ client.on("messageCreate", async message => {
     const collector = lbMessage.createReactionCollector({ filter, time: 120000 });
 
     collector.on('collect', async (reaction, user) => {
-      await reaction.users.remove(user.id).catch(() => {});
+      await reaction.users.remove(user.id).catch(() => { });
 
       if (reaction.emoji.name === '⏮') currentPage = 0;
       else if (reaction.emoji.name === '◀') currentPage = Math.max(0, currentPage - 1);
@@ -302,29 +302,29 @@ client.on("messageCreate", async message => {
     });
 
     collector.on('end', async () => {
-      await lbMessage.reactions.removeAll().catch(() => {});
+      await lbMessage.reactions.removeAll().catch(() => { });
     });
 
   } else if (message.content === '!cleanupleaderboard') {
-  if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
+    if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) return;
 
-  const leaderboard = await getLeaderboard(message.guild.id);
-  if (leaderboard.length === 0)
-    return message.channel.send('No leaderboard data to clean up!');
-let msg = await message.channel.send("Leaderboard cleaning in progress..... This will take some time, please wait....")
-  const allMembers = await message.guild.members.fetch();
-  let removed = 0;
-  for (const entry of leaderboard) {
-    if (!allMembers.has(entry.userId)) {
-      await db.delete('level_' + entry.userId + message.guild.id);
-      await db.delete('levelXP_' + entry.userId + message.guild.id);
-      await db.delete('nextXP_' + entry.userId + message.guild.id);
-      removed++;
+    const leaderboard = await getLeaderboard(message.guild.id);
+    if (leaderboard.length === 0)
+      return message.channel.send('No leaderboard data to clean up!');
+    let msg = await message.channel.send("Leaderboard cleaning in progress..... This will take some time, please wait....")
+    const allMembers = await message.guild.members.fetch();
+    let removed = 0;
+    for (const entry of leaderboard) {
+      if (!allMembers.has(entry.userId)) {
+        await db.delete('level_' + entry.userId + message.guild.id);
+        await db.delete('levelXP_' + entry.userId + message.guild.id);
+        await db.delete('nextXP_' + entry.userId + message.guild.id);
+        removed++;
+      }
     }
+    await msg.edit(`Cleanup complete! Removed **${removed}** users from the leaderboard!`)
   }
-     await msg.edit(`Cleanup complete! Removed **${removed}** users from the leaderboard!`)
-  }
-    else {
+  else {
     return;
   }
 });
@@ -413,22 +413,23 @@ client.on('messageCreate', async message => {
 
     const member = await message.guild.members.fetch(message.author.id);
 
-    if (!member.roles.cache.has('698097735739637760') && !member.roles.cache.has('698098130620514374') && !member.roles.cache.has('698098009233293392') && !member.roles.cache.has('813998590644191232') && !member.roles.cache.has('648199869860806671') && !member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
-      await db.add('levelXP_' + message.author.id + message.guild.id, number);
-    if (member.roles.cache.has('698097735739637760') && !member.roles.cache.has('698098130620514374') && !member.roles.cache.has('698098009233293392') && !member.roles.cache.has('813998590644191232') && !member.roles.cache.has('648199869860806671') && !member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
-      await db.add('levelXP_' + message.author.id + message.guild.id, number1);
-    if (member.roles.cache.has('698098130620514374') && !member.roles.cache.has('698098009233293392') && !member.roles.cache.has('813998590644191232') && !member.roles.cache.has('648199869860806671') && !member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
-      await db.add('levelXP_' + message.author.id + message.guild.id, number2);
-    if (member.roles.cache.has('698098009233293392') && !member.roles.cache.has('813998590644191232') && !member.roles.cache.has('648199869860806671') && !member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
-      await db.add('levelXP_' + message.author.id + message.guild.id, number2);
-    if (member.roles.cache.has('813998590644191232') && !member.roles.cache.has('648199869860806671') && !member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
-      await db.add('levelXP_' + message.author.id + message.guild.id, number3);
-    if (member.roles.cache.has('648199869860806671') && !member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
-      await db.add('levelXP_' + message.author.id + message.guild.id, number3);
-    if (member.roles.cache.has('586457992002666536') && !member.roles.cache.has('705353616944267284'))
-      await db.add('levelXP_' + message.author.id + message.guild.id, number4);
-    if (member.roles.cache.has('705353616944267284'))
+    if (member.roles.cache.has('705353616944267284')) {
       await db.add('levelXP_' + message.author.id + message.guild.id, number5);
+    } else if (member.roles.cache.has('586457992002666536')) {
+      await db.add('levelXP_' + message.author.id + message.guild.id, number4);
+    } else if (member.roles.cache.has('648199869860806671')) {
+      await db.add('levelXP_' + message.author.id + message.guild.id, number3);
+    } else if (member.roles.cache.has('813998590644191232')) {
+      await db.add('levelXP_' + message.author.id + message.guild.id, number3);
+    } else if (member.roles.cache.has('698098009233293392')) {
+      await db.add('levelXP_' + message.author.id + message.guild.id, number2);
+    } else if (member.roles.cache.has('698098130620514374')) {
+      await db.add('levelXP_' + message.author.id + message.guild.id, number2);
+    } else if (member.roles.cache.has('698097735739637760')) {
+      await db.add('levelXP_' + message.author.id + message.guild.id, number1);
+    } else {
+      await db.add('levelXP_' + message.author.id + message.guild.id, number);
+    }
   }
 });
 
@@ -456,4 +457,4 @@ client.on('guildMemberRemove', async member => {
   await db.delete('nextXP_' + member.id + member.guild.id);
 });
 
-client.login('YOUR_BOT_TOKEN_HERE');
+client.login('YOUR_BOT_TOKEN');
